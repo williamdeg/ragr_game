@@ -1,9 +1,14 @@
 from player import Player
+from create_marker import create_marker
 import random
 from gameplay import diceroll, occupied, rpc
+import os
+import sys, pygame
 
 
 def main():
+
+    # mrk = create_marker("pics\\jag.jpg")
 
     turncount = [0] * 99
 
@@ -64,8 +69,10 @@ def main():
                                 f"{plr.getname()} got caught by the dragon! They need to roll a pair to escape!"
                             )
                             plr.stuck = True
-                        elif dr_sum == 3:
+                        elif dr_sum == 4:
+                            spouse = plr.getpartner
                             plr.divorce
+                            spouse.move(dr_sum)
                         elif dr_sum == 7:
                             space7 = [
                                 player for player in space7 if player.getpos() == 7

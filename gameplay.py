@@ -19,17 +19,21 @@ def occupied(this_player, players):
             player_list.append(player)
 
     if player_list:
+        player_list.insert(0, this_player)
         return player_list
     else:
         return None
 
 
-def rpc(player1, pick1, player2, pick2):
+def rps(players, pick1, pick2):
+
+    player1 = players[0]
+    player2 = players[1]
 
     match pick1:
         case "rock":
             if pick2 == "rock":
-                return None
+                return "tie"
             elif pick2 == "paper":
                 player1.pos = None
                 return [player2, player1]
@@ -42,7 +46,7 @@ def rpc(player1, pick1, player2, pick2):
                 player2.pos = None
                 return [player1, player2]
             elif pick2 == "paper":
-                return None
+                return "tie"
             elif pick2 == "scissors":
                 player1.pos = None
                 return [player2, player1]
@@ -55,4 +59,4 @@ def rpc(player1, pick1, player2, pick2):
                 player2.pos = None
                 return [player1, player2]
             elif pick2 == "scissors":
-                return None
+                return "tie"

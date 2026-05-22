@@ -1,15 +1,82 @@
+from PIL import Image, ImageDraw, ImageOps
+from paths import BASE, ASSETS, PICS, FONTS
+from board_spaces import BOARD_POSITIONS
+import os
+import random
+import pygame
+
+
 class Player:
-    def __init__(self, name, partner=None, pos=None, skip=False, stuck=False):
+    def __init__(
+        self,
+        name,
+        marker=None,
+        partner=None,
+        pos=1,
+        skip=False,
+        stuck=False,
+    ):
         self.name = name
+        self.marker = marker
         self.pos = pos
+        self.xy_pos = BOARD_POSITIONS[pos]
+        self.oldpos = pos
         self.partner = partner
         self.skip = skip
         self.stuck = stuck
 
-    def move(self, new_pos):
-        self.pos = new_pos
+    def create_marker(self):
 
-        return print(f"Player {self.name} moved to {new_pos}")
+        # spec_names = ["karro", "erik", "micke", "pott", "jacob", "wille"]
+        spec_names = ["karro", "wille"]
+
+        if self.name.lower() in spec_names:
+            player_pic = Image.open(
+                PICS / "plr_pics" / f"{self.name.lower()}.jpg"
+            ).convert("RGBA")
+        else:
+            rand = random.randint(1, 2)
+            player_pic = Image.open(
+                PICS / "plr_pics" / f"marker_misc_{str(rand)}.png"
+            ).convert("RGBA")
+
+        frame = Image.open(PICS / "plr_pics" / f"marker.png").convert("RGBA")
+
+        frame_width = frame.width
+        frame_height = frame.height
+        padding = 2
+
+        player_pic = ImageOps.fit(
+            player_pic,
+            (frame_width, frame_height),
+            Image.Resampling.LANCZOS,
+        )
+
+        mask = Image.new("L", (frame_width, frame_height), 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse(
+            (
+                padding,
+                padding,
+                frame_width - padding,
+                frame_height - padding,
+            ),
+            fill=255,
+        )
+
+        marker = Image.new("RGBA", (player_pic.width, player_pic.height), (0, 0, 0, 0))
+        marker.paste(player_pic, mask=mask)
+        marker.paste(frame, mask=frame)
+
+        save_string = PICS / "plr_pics" / f"{self.name}_marker.png"
+        marker.save(save_string, "PNG")
+        self.marker = pygame.image.load(save_string)
+        os.remove(PICS / "plr_pics" / f"{self.name}_marker.png")
+
+    def move(self, tar_pos):
+        self.pos = tar_pos
+
+        # return print(f"Player {self.name} moved to {tar_pos}")
 
     def engage(self, player):
         if self.partner is None and player.partner is None:
